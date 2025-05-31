@@ -64,7 +64,7 @@
             const d = new Date(timestamp); // timestamp là chuỗi ISO hoặc số đều được
 
             // Tạo bản sao và cộng thêm 7 giờ để chuyển sang múi giờ VN
-            d.setHours(d.getHours() + 7);
+            d.setHours(d.getHours());
 
             const pad = n => n.toString().padStart(2, '0');
             return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
