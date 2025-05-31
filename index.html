@@ -45,7 +45,6 @@
                 <tr>
                     <th>Cặp giao dịch</th>
                     <th>Update lần cuối</th>
-                    <th>Tỉ lệ</th>
                     <th>Long %</th>
                     <th>Short %</th>
                     <th>Funding Rate %</th>
@@ -95,7 +94,6 @@
                     tr.innerHTML = `
                         <td>${item.instId || ''}</td>
                         <td>${item.timestamp ? formatTimestamp(item.timestamp) : ''}</td>
-                        <td>${item.ratio ?? ''}</td>
                         <td>${item.long_percent ?? ''}</td>
                         <td>${item.short_percent ?? ''}</td>
                         <td>${item.funding_rate_percent ?? ''}</td>
