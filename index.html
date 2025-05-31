@@ -48,6 +48,9 @@
                     <th>Long %</th>
                     <th>Short %</th>
                     <th>Funding Rate %</th>
+                    <th>Volume 24h (beta)</th>
+                    <th>Market Cap (beta)</th>
+                    <th>Vol/Cap Ratio (beta)</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -90,6 +93,10 @@
                 table.style.display = "table";
 
                 for (const item of data) {
+                    const vol = item.vol24h ?? 0;
+                    const cap = item.mktcap ?? 0;
+                    const volCapRatio = (vol && cap) ? ((vol / cap)).toFixed(2) : 0;
+
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td>${item.instId || ''}</td>
@@ -97,6 +104,9 @@
                         <td>${item.long_percent ?? ''}</td>
                         <td>${item.short_percent ?? ''}</td>
                         <td>${item.funding_rate_percent ?? ''}</td>
+                        <td>${item.format_vol24h ?? ''}</td>
+                        <td>${item.format_mktcap ?? ''}</td>
+                        <td>${volCapRatio}</td>
                     `;
                     tbody.appendChild(tr);
                 }
@@ -104,8 +114,8 @@
                 new DataTable("#ratioTable", {
                     searchable: true,
                     sortable: true,
-                    perPage: 10,
-                    sort: [[4, "desc"]] // Sort theo short_percent giảm dần
+                    perPage: 25,
+                    sort: [[4, "desc"]], // Sort theo short_percent giảm dần
                 });
 
             } catch (err) {
