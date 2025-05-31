@@ -20,6 +20,13 @@
         table.dataTable-table {
             color: white;
         }
+
+        #noDataMessage {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
     </style>
 </head>
 
@@ -27,7 +34,11 @@
     <div class="container">
         <h2 class="mb-4">📊 OKX Long/Short Ratio (Live)</h2>
 
-        <table id="ratioTable" class="table table-dark table-bordered table-hover table-striped">
+        <div id="noDataMessage" style="display: none;">
+            ⏳ Dữ liệu đang được xử lý, vui lòng quay lại sau.
+        </div>
+
+        <table id="ratioTable" class="table table-dark table-bordered table-hover table-striped" style="display: none;">
             <thead>
                 <tr>
                     <th>Instrument</th>
@@ -38,9 +49,7 @@
                     <th>Funding Rate %</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                <!-- Dữ liệu sẽ được thêm tại đây -->
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 
@@ -61,8 +70,19 @@
                 const res = await fetch(apiUrl);
                 const data = await res.json();
 
+                const table = document.getElementById("ratioTable");
+                const message = document.getElementById("noDataMessage");
                 const tbody = document.getElementById("tableBody");
                 tbody.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    table.style.display = "none";
+                    message.style.display = "block";
+                    return;
+                }
+
+                message.style.display = "none";
+                table.style.display = "table";
 
                 for (const item of data) {
                     const tr = document.createElement("tr");
@@ -77,17 +97,17 @@
                     tbody.appendChild(tr);
                 }
 
-                // Khởi tạo bảng với DataTables
                 new DataTable("#ratioTable", {
                     searchable: true,
                     sortable: true,
                     perPage: 10,
-                    sort: [[4, "desc"]] // Cột short_percent, giảm dần
+                    sort: [[4, "desc"]] // Sort theo short_percent giảm dần
                 });
 
             } catch (err) {
                 console.error("Lỗi khi tải dữ liệu:", err);
-                // alert("Không thể tải dữ liệu từ API");
+                document.getElementById("ratioTable").style.display = "none";
+                document.getElementById("noDataMessage").style.display = "block";
             }
         }
 
