@@ -97,12 +97,12 @@
                 for (const item of instrument_ratios) {
 
                     const vol24_usdt = item?.market_future ? item.market_future?.turnOver24h ?? 0.0 : 0.0;
-                    const cap = item?.market_spot ? item.market_spot?.marketCap ?? 0.0 : item?.coin_info ? item.coin_info?.marketCap ?? 0.0 : 0.0;
+                    const cap = (item?.market_spot && item.market_spot?.marketCap) ? item.market_spot?.marketCap : (item?.coin_info && item.coin_info?.marketCap) ? item.coin_info?.marketCap : 0.0;
+
                     const volCapRatio = (vol24_usdt && cap && cap > 0) ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
 
                     const format_vol24h_usdt = item?.market_future ? item.market_future.format?.turnOver24h ?? "" : "";
-                    const format_mktcap = item?.market_spot ? item.market_spot.format?.marketCap ?? "" : item?.coin_info ? item.coin_info.format?.marketCap ?? "" : "";
-
+                    const format_mktcap = (item?.market_spot && item.market_spot.format?.marketCap) ? item.market_spot.format?.marketCap : (item?.coin_info && item.coin_info.format?.marketCap) ? item.coin_info.format?.marketCap : "";
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td>${item.instId || ''}</td>
