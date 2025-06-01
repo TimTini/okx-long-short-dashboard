@@ -48,9 +48,9 @@
                     <th>Long %</th>
                     <th>Short %</th>
                     <th>Funding Rate %</th>
-                    <th>Volume 24h (beta)</th>
-                    <th>Market Cap (beta)</th>
-                    <th>Vol/Cap Ratio (beta)</th>
+                    <th>Volume 24h</th>
+                    <th>Market Cap</th>
+                    <th>Vol/Cap Ratio %</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -61,7 +61,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"></script>
     <script>
-        const apiUrl = 'https://script.google.com/macros/s/AKfycbxt7YmxcNv1r1NtjeYLudSze4XOnKglDdQQZa2TTvUFM-KyPWOxrc7B-GXyqvRe5DRq/exec';
+        const baseUrl = ' https://certificates-franchise-frog-emirates.trycloudflare.com';
+        const apiUrl = baseUrl + '/api/instrument_ratios';
 
         function formatTimestamp(timestamp) {
             const d = new Date(timestamp); // timestamp là chuỗi ISO hoặc số đều được
@@ -77,13 +78,14 @@
             try {
                 const res = await fetch(apiUrl);
                 const data = await res.json();
+                const instrument_ratios = data.data;
 
                 const table = document.getElementById("ratioTable");
                 const message = document.getElementById("noDataMessage");
                 const tbody = document.getElementById("tableBody");
                 tbody.innerHTML = "";
 
-                if (!data || data.length === 0) {
+                if (!instrument_ratios || instrument_ratios.length === 0) {
                     table.style.display = "none";
                     message.style.display = "block";
                     return;
@@ -92,10 +94,14 @@
                 message.style.display = "none";
                 table.style.display = "table";
 
-                for (const item of data) {
-                    const vol = item.vol24h ?? 0;
-                    const cap = item.mktcap ?? 0;
-                    const volCapRatio = (vol && cap) ? ((vol / cap)).toFixed(2) : 0;
+                for (const item of instrument_ratios) {
+
+                    const vol24_usdt = item?.market_future ? item.market_future?.turnOver24h ?? 0.0 : 0.0;
+                    const cap = item?.market_spot ? item.market_spot?.marketCap ?? 0 : 0;
+                    const volCapRatio = (vol24_usdt && cap && cap > 0) ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
+
+                    const format_vol24h_usdt = item?.market_future ? item.market_future.format?.turnOver24h ?? "" : "";
+                    const format_mktcap = item?.market_spot ? item.market_spot.format?.marketCap ?? "" : "";
 
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
@@ -104,8 +110,8 @@
                         <td>${item.long_percent ?? ''}</td>
                         <td>${item.short_percent ?? ''}</td>
                         <td>${item.funding_rate_percent ?? ''}</td>
-                        <td>${item.format_vol24h ?? ''}</td>
-                        <td>${item.format_mktcap ?? ''}</td>
+                        <td>${format_vol24h_usdt ?? ''}</td>
+                        <td>${format_mktcap ?? ''}</td>
                         <td>${volCapRatio}</td>
                     `;
                     tbody.appendChild(tr);
