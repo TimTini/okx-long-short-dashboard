@@ -43,14 +43,14 @@
         <table id="ratioTable" class="table table-dark table-bordered table-hover table-striped" style="display: none;">
             <thead>
                 <tr>
-                    <th>Cặp giao dịch</th>
-                    <th>Update lần cuối</th>
-                    <th>Long %</th>
-                    <th>Short %</th>
-                    <th>Funding Rate %</th>
-                    <th>Volume 24h</th>
-                    <th>Market Cap</th>
-                    <th>Vol/Cap Ratio %</th>
+                    <th class="text-nowrap">Cặp giao dịch</th>
+                    <th class="text-nowrap">Update At</th>
+                    <th class="text-nowrap">Long %</th>
+                    <th class="text-nowrap">Short %</th>
+                    <th class="text-nowrap">Funding %</th>
+                    <th class="text-nowrap">Vol 24h</th>
+                    <th class="text-nowrap">Cap</th>
+                    <th class="text-nowrap">Vol/Cap %</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -105,14 +105,14 @@
                     const format_mktcap = (item?.market_spot && item.market_spot.format?.marketCap) ? item.market_spot.format?.marketCap : (item?.coin_info && item.coin_info.format?.marketCap) ? item.coin_info.format?.marketCap : "";
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td>${item.instId || ''}</td>
-                        <td>${item.timestamp ? formatTimestamp(item.timestamp) : ''}</td>
-                        <td>${item.long_percent ?? ''}</td>
-                        <td>${item.short_percent ?? ''}</td>
-                        <td>${item.funding_rate_percent ?? ''}</td>
-                        <td>${format_vol24h_usdt ?? ''}</td>
-                        <td>${format_mktcap ?? ''}</td>
-                        <td>${volCapRatio}</td>
+                        <td class="text-nowrap">${item.instId || ''}</td>
+                        <td class="text-nowrap">${item.timestamp ? formatTimestamp(item.timestamp) : ''}</td>
+                        <td class="text-nowrap">${item.long_percent ?? ''}</td>
+                        <td class="text-nowrap">${item.short_percent ?? ''}</td>
+                        <td class="text-nowrap">${item.funding_rate_percent ?? ''}</td>
+                        <td class="text-nowrap">${format_vol24h_usdt ?? ''}</td>
+                        <td class="text-nowrap">${format_mktcap ?? ''}</td>
+                        <td class="text-nowrap">${volCapRatio}</td>
                     `;
                     tbody.appendChild(tr);
                 }
