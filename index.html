@@ -61,7 +61,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"></script>
     <script>
-        const baseUrl = 'https://commentary-habitat-unit-job.trycloudflare.com';
+        const baseUrl = 'https://investor-cio-costs-raised.trycloudflare.com';
         const apiUrl = baseUrl + '/api/instrument_ratios';
 
         function formatTimestamp(timestamp) {
@@ -97,11 +97,11 @@
                 for (const item of instrument_ratios) {
 
                     const vol24_usdt = item?.market_future ? item.market_future?.turnOver24h ?? 0.0 : 0.0;
-                    const cap = item?.market_spot ? item.market_spot?.marketCap ?? 0 : 0;
+                    const cap = item?.market_spot ? item.market_spot?.marketCap ?? 0.0 : item?.coin_info ? item.coin_info?.marketCap ?? 0.0 : 0.0;
                     const volCapRatio = (vol24_usdt && cap && cap > 0) ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
 
                     const format_vol24h_usdt = item?.market_future ? item.market_future.format?.turnOver24h ?? "" : "";
-                    const format_mktcap = item?.market_spot ? item.market_spot.format?.marketCap ?? "" : "";
+                    const format_mktcap = item?.market_spot ? item.market_spot.format?.marketCap ?? "" : item?.coin_info ? item.coin_info.format?.marketCap ?? "" : "";
 
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
