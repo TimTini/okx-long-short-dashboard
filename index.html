@@ -144,7 +144,15 @@
                     const trend = item?.trend_analysis ?? {
                         "emoji": "⚠️", "label": "Thiếu dữ liệu"
                     };
-
+                    const trendText = () => {
+                        const p4h_percent = price_changes['4h']?.percent;
+                        if (!p4h_percent) return `[${(trend?.trend ?? 0) + 2}] ${trend.emoji}`
+                        if (p4h_percent >= 0) {
+                            return `[${(trend?.trend ?? 0) + 2}.${(String(p4h_percent).replaceAll(/[\,\.\-]/g, ""))}] ${trend.emoji}`
+                        }
+                        const p4h_percent_negative = 100 + parseFloat(p4h_percent);
+                        return `[${(trend?.trend ?? 0) + 2}.${(String((p4h_percent_negative)).replaceAll(/[\,\.\-]/g, ""))}] ${trend.emoji}`
+                    }
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td class="text-nowrap">${item.instId || ''}</td>
@@ -159,7 +167,7 @@
                         <td class="text-nowrap">${price_changes['15min']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['1h']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['4h']?.percent ?? '-'}</td>
-                        <td class="text-nowrap" title="${trend.label}">[${(trend?.trend ?? 0) + 2}] ${trend.emoji} ${trend.label}</td>
+                        <td class="text-nowrap" title="${trend.label}">${trendText()}</td>
          
                     `;
                     tbody.appendChild(tr);
