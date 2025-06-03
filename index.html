@@ -159,7 +159,7 @@
                         <td class="text-nowrap">${price_changes['15min']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['1h']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['4h']?.percent ?? '-'}</td>
-                        <td class="text-nowrap" title="${trend.label}">${trend.emoji} ${trend.label}</td>
+                        <td class="text-nowrap" title="${trend.label}">[${(trend?.trend ?? 0) + 2}] ${trend.emoji} ${trend.label}</td>
          
                     `;
                     tbody.appendChild(tr);
