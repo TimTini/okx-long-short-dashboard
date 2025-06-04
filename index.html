@@ -105,7 +105,7 @@
                         <th class="text-nowrap">Vol 24h</th>
                         <th class="text-nowrap">Cap</th>
                         <th class="text-nowrap">Vol/Cap %</th>
-                        <th class="text-nowrap">Vol 15m % Beta</th>
+                        <th class="text-nowrap">Vol24h % Beta</th>
                         <th class="text-nowrap">15m %</th>
                         <th class="text-nowrap">1h %</th>
                         <th class="text-nowrap">4h %</th>
@@ -294,7 +294,7 @@
                             ? item.coin_info.format?.marketCap
                             : "";
 
-                    const vol15min_percent = item?.volume24h_changes?.["15min"]?.percent ?? '';
+                    const vol24h_percent = item?.volume24h_changes?.["15min"]?.percent ?? '';
 
                     const price_changes = {
                         "15min": {
@@ -372,7 +372,7 @@
                         <td class="text-nowrap">${format_mktcap ?? ''}</td>
                         <td class="text-nowrap">${volCapRatio}</td>
 
-                        <td class="text-nowrap">${vol15min_percent}</td>
+                        <td class="text-nowrap">${vol24h_percent}</td>
                         
                         <td class="text-nowrap">${price_changes['15min']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['1h']?.percent ?? '-'}</td>
