@@ -29,12 +29,62 @@
             color: #ccc;
         }
     </style>
+    <style>
+        .column-toggle-menu {
+            padding: 8px;
+            min-width: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .column-toggle-menu .dropdown-item {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .column-toggle-menu .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .column-toggle-menu .form-check {
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .column-toggle-menu .form-check-input {
+            margin-right: 8px;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <h2 class="mb-4">📊 OKX tỉ lệ Long/Short (Cập nhật mỗi 15 phút)</h2>
-
+        <div class="mb-3">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleButton"
+                    data-bs-toggle="dropdown">
+                    Ẩn/Hiện Cột
+                </button>
+                <ul class="dropdown-menu column-toggle-menu" id="columnToggleMenu">
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" id="showAllColumns">
+                            <i class="bi bi-eye"></i> Hiện tất cả
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" id="hideAllColumns">
+                            <i class="bi bi-eye-slash"></i> Ẩn tất cả
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         <div id="noDataMessage" style="display: none;">
             ⏳ Dữ liệu đang được xử lý, vui lòng quay lại sau.
@@ -66,6 +116,129 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"></script>
+    <script>
+
+        const columnDefinitions = [
+            { name: 'Cặp giao dịch', visible: true },
+            { name: 'Update At', visible: true },
+            { name: 'Long %', visible: true },
+            { name: 'Short %', visible: true },
+            { name: 'Funding %', visible: true },
+            { name: 'Vol 24h', visible: true },
+            { name: 'Cap', visible: true },
+            { name: 'Vol/Cap %', visible: true },
+            { name: '15m %', visible: true },
+            { name: '1h %', visible: true },
+            { name: '4h %', visible: true },
+            { name: 'Xu Hướng', visible: true }
+        ];
+
+        // Load settings from localStorage
+        function loadColumnSettings() {
+            const savedSettings = localStorage.getItem('columnSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                columnDefinitions.forEach((col, index) => {
+                    col.visible = settings[index] ?? true;
+                });
+            }
+        }
+
+        // Save settings to localStorage
+        function saveColumnSettings() {
+            const settings = columnDefinitions.map(col => col.visible);
+            localStorage.setItem('columnSettings', JSON.stringify(settings));
+        }
+
+        function initializeColumnToggle() {
+            loadColumnSettings();
+            const menu = document.getElementById('columnToggleMenu');
+            // Lấy reference đến divider và các nút control
+            const divider = menu.querySelector('.dropdown-divider').parentElement;
+
+            columnDefinitions.forEach((col, index) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'dropdown-item';
+                a.href = '#';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'form-check-input';
+                checkbox.checked = col.visible;
+
+                const label = document.createTextNode(col.name);
+
+                a.appendChild(checkbox);
+                a.appendChild(label);
+                li.appendChild(a);
+
+                // Chèn các item mới vào trước divider
+                menu.insertBefore(li, divider);
+
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    checkbox.checked = !checkbox.checked;
+                    toggleColumn(index, checkbox.checked);
+                });
+            });
+
+            // Xử lý nút "Hiện tất cả"
+            document.getElementById('showAllColumns').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Thêm dòng này để ngăn popup đóng lại
+                setAllColumns(true);
+            });
+
+            // Xử lý nút "Ẩn tất cả"
+            document.getElementById('hideAllColumns').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Thêm dòng này để ngăn popup đóng lại
+                setAllColumns(false);
+            });
+
+            // Áp dụng trạng thái ẩn/hiện ban đầu
+            columnDefinitions.forEach((col, index) => {
+                if (!col.visible) {
+                    window.dataTable.columns().hide([index]);
+                }
+            });
+        }
+
+        function toggleColumn(columnIndex, show) {
+            columnDefinitions[columnIndex].visible = show;
+            if (window.dataTable) {
+                window.dataTable.columns().hide([columnIndex]); // Ẩn cột
+                if (show) {
+                    window.dataTable.columns().show([columnIndex]); // Hiện cột
+                }
+            }
+            saveColumnSettings();
+        }
+
+        function setAllColumns(show) {
+            columnDefinitions.forEach((col, index) => {
+                col.visible = show;
+                if (window.dataTable) {
+                    if (show) {
+                        window.dataTable.columns().show([index]);
+                    } else {
+                        window.dataTable.columns().hide([index]);
+                    }
+                }
+            });
+
+            // Update checkboxes
+            const checkboxes = document.querySelectorAll('#columnToggleMenu input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = show;
+            });
+
+            saveColumnSettings();
+        }
+
+    </script>
     <script>
         const baseUrl = 'https://tcn.io.vn';
         const apiUrl = baseUrl + '/api/instrument_ratios';
@@ -194,12 +367,14 @@
                     tbody.appendChild(tr);
                 }
 
-                new DataTable("#ratioTable", {
+                window.dataTable = new DataTable("#ratioTable", {
                     searchable: true,
                     sortable: true,
                     perPage: 25,
                     sort: [[4, "desc"]], // Sort theo short_percent giảm dần
                 });
+
+                initializeColumnToggle();
 
             } catch (err) {
                 console.error("Lỗi khi tải dữ liệu:", err);
@@ -210,6 +385,7 @@
 
         loadData();
     </script>
+
 </body>
 
 </html>
