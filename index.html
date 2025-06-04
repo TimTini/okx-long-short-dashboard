@@ -146,15 +146,37 @@
                     };
                     const trendText = () => {
                         const p4h_percent = price_changes['4h']?.percent;
-                        if (!p4h_percent) return `[${(trend?.trend ?? 0) + 2}] ${trend.emoji}`
-                        if (p4h_percent >= 0) {
-                            return `[${(trend?.trend ?? 0) + 2}.${(String(p4h_percent).replaceAll(/[\,\.\-]/g, ""))}] ${trend.emoji}`
+
+                        // Format số theo yêu cầu: phần nguyên 3 chữ số, phần thập phân 2 chữ số
+                        const formatNumber = (num) => {
+                            const [intPart, decPart = ''] = String(num).split('.');
+
+                            // Pad phần nguyên với số 0 bên trái cho đủ 3 chữ số
+                            const paddedInt = intPart.padStart(3, '0');
+
+                            // Pad phần thập phân với số 0 bên phải cho đủ 2 chữ số
+                            const paddedDec = decPart.padEnd(2, '0');
+
+                            // Nối lại và remove dấu chấm
+                            return `${paddedInt}${paddedDec}`;
+                        };
+
+                        if (!p4h_percent) {
+                            return `[${(trend?.trend ?? 0) + 2}.00000] ${trend.emoji}`;
                         }
+
+                        if (p4h_percent >= 0) {
+                            const p4h_percent_positive = parseFloat(p4h_percent);
+                            const processedPositive = formatNumber(p4h_percent_positive);
+                            return `[${(trend?.trend ?? 0) + 2}.${processedPositive}] ${trend.emoji}`;
+                        }
+
                         const p4h_percent_negative = 100 + parseFloat(p4h_percent);
-                        return `[${(trend?.trend ?? 0) + 2}.${(String((p4h_percent_negative)).replaceAll(/[\,\.\-]/g, ""))}] ${trend.emoji}`
-                    }
+                        const processedNegative = formatNumber(p4h_percent_negative);
+                        return `[${(trend?.trend ?? 0) + 2}.${processedNegative}] ${trend.emoji}`;
+                    };
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `
+                    tr.innerHTML = ` 
                         <td class="text-nowrap">${item.instId || ''}</td>
                         <td class="text-nowrap">${item.timestamp ? formatTimestamp(item.timestamp) : ''}</td>
                         <td class="text-nowrap">${item.long_percent ?? ''}</td>
@@ -167,8 +189,7 @@
                         <td class="text-nowrap">${price_changes['15min']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['1h']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['4h']?.percent ?? '-'}</td>
-                        <td class="text-nowrap" title="${trend.label}">${trendText()}</td>
-         
+                        <td class="text-nowrap" title="${trend.label}"><span style="display: none" >${trendText()}</span><span>${trend.emoji}</span></td>
                     `;
                     tbody.appendChild(tr);
                 }
