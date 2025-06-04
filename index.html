@@ -13,6 +13,9 @@
     <link href="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.css"
         rel="stylesheet">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         body {
             padding: 20px;
@@ -102,6 +105,7 @@
                         <th class="text-nowrap">Vol 24h</th>
                         <th class="text-nowrap">Cap</th>
                         <th class="text-nowrap">Vol/Cap %</th>
+                        <th class="text-nowrap">Vol 15m % Beta</th>
                         <th class="text-nowrap">15m %</th>
                         <th class="text-nowrap">1h %</th>
                         <th class="text-nowrap">4h %</th>
@@ -118,26 +122,17 @@
     <script src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"></script>
     <script>
 
-        const columnDefinitions = [
-            { name: 'Cặp giao dịch', visible: true },
-            { name: 'Update At', visible: true },
-            { name: 'Long %', visible: true },
-            { name: 'Short %', visible: true },
-            { name: 'Funding %', visible: true },
-            { name: 'Vol 24h', visible: true },
-            { name: 'Cap', visible: true },
-            { name: 'Vol/Cap %', visible: true },
-            { name: '15m %', visible: true },
-            { name: '1h %', visible: true },
-            { name: '4h %', visible: true },
-            { name: 'Xu Hướng', visible: true }
-        ];
+        // Column definitions
+        const columnDefinitions = Array.from(document.querySelectorAll("#ratioTable > thead > tr > th")).map(th => ({ name: th.innerText, visible: true }));
 
         // Load settings from localStorage
         function loadColumnSettings() {
             const savedSettings = localStorage.getItem('columnSettings');
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
+                if (settings.length !== columnDefinitions.length) {
+                    return;
+                }
                 columnDefinitions.forEach((col, index) => {
                     col.visible = settings[index] ?? true;
                 });
@@ -299,6 +294,7 @@
                             ? item.coin_info.format?.marketCap
                             : "";
 
+                    const vol15min_percent = item?.volume24h_changes?.["15min"]?.percent ?? '';
 
                     const price_changes = {
                         "15min": {
@@ -348,6 +344,23 @@
                         const processedNegative = formatNumber(p4h_percent_negative);
                         return `[${(trend?.trend ?? 0) + 2}.${processedNegative}] ${trend.emoji}`;
                     };
+                    const getTrendIcon = () => {
+                        if (trend.trend == 2) {
+                            return '<i class="fas fa-arrow-up text-success"></i> <i class="fas fa-arrow-up text-success"></i>';
+                        }
+                        if (trend.trend == 1) {
+                            return '<i class="fas fa-arrow-up text-success"></i>';
+                        }
+                        if (trend.trend == -1) {
+                            return '<i class="fas fa-arrow-down text-danger"></i>';
+                        }
+                        if (trend.trend == -2) {
+                            return '<i class="fas fa-arrow-down text-danger"></i> <i class="fas fa-arrow-down text-danger"></i>';
+                        }
+                        return '<i class="fas fa-arrows-left-right text-secondary"></i>';
+                    };
+
+
                     const tr = document.createElement("tr");
                     tr.innerHTML = ` 
                         <td class="text-nowrap">${item.instId || ''}</td>
@@ -358,11 +371,13 @@
                         <td class="text-nowrap">${format_vol24h_usdt ?? ''}</td>
                         <td class="text-nowrap">${format_mktcap ?? ''}</td>
                         <td class="text-nowrap">${volCapRatio}</td>
+
+                        <td class="text-nowrap">${vol15min_percent}</td>
                         
                         <td class="text-nowrap">${price_changes['15min']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['1h']?.percent ?? '-'}</td>
                         <td class="text-nowrap">${price_changes['4h']?.percent ?? '-'}</td>
-                        <td class="text-nowrap" title="${trend.label}"><span style="display: none" >${trendText()}</span><span>${trend.emoji}</span></td>
+                        <td class="text-nowrap" title="${trend.label}"><span style="display: none" >${trendText()}</span><span>${getTrendIcon()}</span></td>
                     `;
                     tbody.appendChild(tr);
                 }
