@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark" class="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -7,110 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Vanilla-DataTables -->
-    <link href="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.css"
-        rel="stylesheet">
-
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="css/datatables.min.css">
+    <link rel="stylesheet" href="css/dataTables.dataTables.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <style>
-        body {
-            padding: 1rem;
-        }
-
-        table.dataTable-table {
-            color: white;
-        }
-
-        #noDataMessage {
-            text-align: center;
-            padding: 20px;
-            font-size: 1.1rem;
-            color: #ccc;
-        }
-
-        .column-toggle-menu {
-            padding: 8px;
-            min-width: 200px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .column-toggle-menu .dropdown-item {
-            padding: 6px 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .column-toggle-menu .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .column-toggle-menu .form-check-input {
-            margin-right: 8px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            h2 {
-                font-size: 1.2rem;
-            }
-
-            .dropdown-toggle {
-                font-size: 0.9rem;
-            }
-
-            .column-toggle-menu {
-                max-height: 300px;
-                font-size: 0.85rem;
-            }
-
-            table th,
-            table td {
-                font-size: 0.75rem;
-            }
-
-            .table-responsive {
-                overflow-x: auto;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
-    <div class="container-fluid">
-        <h2 class="mb-3">📊 OKX tỉ lệ Long/Short (Cập nhật mỗi 15 phút)</h2>
+    <!-- Cập nhật container -->
+    <div class="container-fluid py-4">
+        <h2 class="mb-4 d-flex align-items-center">
+            <span class="me-2">📊</span>
+            <span>OKX tỉ lệ Long/Short</span>
+            <small class="text-muted ms-2">(Cập nhật mỗi 15 phút)</small>
+        </h2>
 
-        <div class="mb-3">
-            <div class="dropdown">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="columnToggleButton"
-                    data-bs-toggle="dropdown">
-                    Ẩn/Hiện Cột
-                </button>
-                <ul class="dropdown-menu column-toggle-menu" id="columnToggleMenu">
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="#" id="showAllColumns"><i class="bi bi-eye"></i> Hiện tất cả</a>
-                    </li>
-                    <li><a class="dropdown-item" href="#" id="hideAllColumns"><i class="bi bi-eye-slash"></i> Ẩn tất
-                            cả</a></li>
-                </ul>
-            </div>
+        <!-- Loading message -->
+        <div id="noDataMessage" class="alert alert-info" style="display: none;">
+            <i class="bi bi-hourglass me-2"></i>
+            Dữ liệu đang được xử lý, vui lòng quay lại sau.
         </div>
 
-        <div id="noDataMessage" style="display: none;">
-            ⏳ Dữ liệu đang được xử lý, vui lòng quay lại sau.
-        </div>
-
-        <div class="table-responsive">
-            <table id="ratioTable" class="table table-dark table-bordered table-hover table-striped w-100"
-                style="display: none;">
+        <!-- Table wrapper with shadow -->
+        <div class="">
+            <table id="ratioTable" class="table table-hover cell-border mb-0">
                 <thead>
                     <tr>
                         <th class="text-nowrap">Cặp giao dịch</th>
@@ -135,287 +58,14 @@
 
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"></script>
-    <script>
+    <!-- Bootstrap -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables -->
+    <script src="js/datatables.min.js"></script>
+    <!-- Font Awesome -->
+    <script src="js/all.min.js"></script>
+    <script src="js/index.js">
 
-        // Column definitions
-        const columnDefinitions = Array.from(document.querySelectorAll("#ratioTable > thead > tr > th")).map(th => ({ name: th.innerText, visible: true }));
-
-        // Load settings from localStorage
-        function loadColumnSettings() {
-            const savedSettings = localStorage.getItem('columnSettings');
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                if (settings.length !== columnDefinitions.length) {
-                    return;
-                }
-                columnDefinitions.forEach((col, index) => {
-                    col.visible = settings[index] ?? true;
-                });
-            }
-        }
-
-        // Save settings to localStorage
-        function saveColumnSettings() {
-            const settings = columnDefinitions.map(col => col.visible);
-            localStorage.setItem('columnSettings', JSON.stringify(settings));
-        }
-
-        function initializeColumnToggle() {
-            loadColumnSettings();
-            const menu = document.getElementById('columnToggleMenu');
-            // Lấy reference đến divider và các nút control
-            const divider = menu.querySelector('.dropdown-divider').parentElement;
-
-            columnDefinitions.forEach((col, index) => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.className = 'dropdown-item';
-                a.href = '#';
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'form-check-input';
-                checkbox.checked = col.visible;
-
-                const label = document.createTextNode(col.name);
-
-                a.appendChild(checkbox);
-                a.appendChild(label);
-                li.appendChild(a);
-
-                // Chèn các item mới vào trước divider
-                menu.insertBefore(li, divider);
-
-                a.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    checkbox.checked = !checkbox.checked;
-                    toggleColumn(index, checkbox.checked);
-                });
-            });
-
-            // Xử lý nút "Hiện tất cả"
-            document.getElementById('showAllColumns').addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation(); // Thêm dòng này để ngăn popup đóng lại
-                setAllColumns(true);
-            });
-
-            // Xử lý nút "Ẩn tất cả"
-            document.getElementById('hideAllColumns').addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation(); // Thêm dòng này để ngăn popup đóng lại
-                setAllColumns(false);
-            });
-
-            // Áp dụng trạng thái ẩn/hiện ban đầu
-            columnDefinitions.forEach((col, index) => {
-                if (!col.visible) {
-                    window.dataTable.columns().hide([index]);
-                }
-            });
-        }
-
-        function toggleColumn(columnIndex, show) {
-            columnDefinitions[columnIndex].visible = show;
-            if (window.dataTable) {
-                window.dataTable.columns().hide([columnIndex]); // Ẩn cột
-                if (show) {
-                    window.dataTable.columns().show([columnIndex]); // Hiện cột
-                }
-            }
-            saveColumnSettings();
-        }
-
-        function setAllColumns(show) {
-            columnDefinitions.forEach((col, index) => {
-                col.visible = show;
-                if (window.dataTable) {
-                    if (show) {
-                        window.dataTable.columns().show([index]);
-                    } else {
-                        window.dataTable.columns().hide([index]);
-                    }
-                }
-            });
-
-            // Update checkboxes
-            const checkboxes = document.querySelectorAll('#columnToggleMenu input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = show;
-            });
-
-            saveColumnSettings();
-        }
-
-    </script>
-    <script>
-        const baseUrl = 'https://tcn.io.vn';
-        const apiUrl = baseUrl + '/api/instrument_ratios';
-
-        function formatTimestamp(timestamp) {
-            const d = new Date(timestamp);
-
-            const pad = n => n.toString().padStart(2, '0');
-            return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-        }
-
-        async function loadData() {
-            try {
-                const res = await fetch(apiUrl);
-                const data = await res.json();
-                const instrument_ratios = data.data;
-
-                const table = document.getElementById("ratioTable");
-                const message = document.getElementById("noDataMessage");
-                const tbody = document.getElementById("tableBody");
-                tbody.innerHTML = "";
-
-                if (!instrument_ratios || instrument_ratios.length === 0) {
-                    table.style.display = "none";
-                    message.style.display = "block";
-                    return;
-                }
-
-                message.style.display = "none";
-                table.style.display = "table";
-
-                for (const item of instrument_ratios) {
-
-                    // Retrieve the 24-hour trade volume in USDT
-                    const vol24_usdt = item?.market_future ? item.market_future?.turnOver24h ?? 0.0 : 0.0;
-
-                    // Retrieve the market capitalization from either market_spot or coin_info
-                    const cap = (item?.market_spot && item.market_spot?.marketCap)
-                        ? item.market_spot?.marketCap
-                        : (item?.coin_info && item.coin_info?.marketCap)
-                            ? item.coin_info?.marketCap
-                            : 0.0;
-
-                    // Calculate the volume-to-capitalization ratio as a percentage
-                    const volCapRatio = (vol24_usdt && cap && cap > 0)
-                        ? ((vol24_usdt / cap) * 100).toFixed(2)
-                        : "0.0";
-
-                    // Format the 24-hour trade volume in USDT for display
-                    const format_vol24h_usdt = item?.market_future
-                        ? item.market_future.format?.turnOver24h ?? ""
-                        : "";
-
-                    // Format the market capitalization for display
-                    const format_mktcap = (item?.market_spot && item.market_spot.format?.marketCap)
-                        ? item.market_spot.format?.marketCap
-                        : (item?.coin_info && item.coin_info.format?.marketCap)
-                            ? item.coin_info.format?.marketCap
-                            : "";
-
-                    const vol24h_percent = item?.volume24h_changes?.["15min"]?.percent ?? '0';
-
-                    const price_changes = {
-                        "15min": {
-                            percent: item?.price_changes?.["15min"]?.percent ?? null,
-                            current: item?.price_changes?.["15min"]?.current ?? null,
-                        },
-                        "1h": {
-                            percent: item?.price_changes?.["1h"]?.percent ?? null,
-                            current: item?.price_changes?.["1h"]?.current ?? null,
-                        },
-                        "4h": {
-                            percent: item?.price_changes?.["4h"]?.percent ?? null,
-                            current: item?.price_changes?.["4h"]?.current ?? null,
-                        },
-                    }
-                    const trend = item?.trend_analysis ?? {
-                        "emoji": "⚠️", "label": "Thiếu dữ liệu"
-                    };
-                    const trendText = () => {
-                        const p4h_percent = price_changes['4h']?.percent;
-
-                        // Format số theo yêu cầu: phần nguyên 3 chữ số, phần thập phân 2 chữ số
-                        const formatNumber = (num) => {
-                            const [intPart, decPart = ''] = String(num).split('.');
-
-                            // Pad phần nguyên với số 0 bên trái cho đủ 3 chữ số
-                            const paddedInt = intPart.padStart(3, '0');
-
-                            // Pad phần thập phân với số 0 bên phải cho đủ 2 chữ số
-                            const paddedDec = decPart.padEnd(2, '0');
-
-                            // Nối lại và remove dấu chấm
-                            return `${paddedInt}${paddedDec}`;
-                        };
-
-                        if (!p4h_percent) {
-                            return `[${(trend?.trend ?? 0) + 2}.00000] ${trend.emoji}`;
-                        }
-
-                        if (p4h_percent >= 0) {
-                            const p4h_percent_positive = parseFloat(p4h_percent);
-                            const processedPositive = formatNumber(p4h_percent_positive);
-                            return `[${(trend?.trend ?? 0) + 2}.${processedPositive}] ${trend.emoji}`;
-                        }
-
-                        const p4h_percent_negative = 100 + parseFloat(p4h_percent);
-                        const processedNegative = formatNumber(p4h_percent_negative);
-                        return `[${(trend?.trend ?? 0) + 2}.${processedNegative}] ${trend.emoji}`;
-                    };
-                    const getTrendIcon = () => {
-                        if (trend.trend == 2) {
-                            return '<i class="fas fa-arrow-up text-success"></i> <i class="fas fa-arrow-up text-success"></i>';
-                        }
-                        if (trend.trend == 1) {
-                            return '<i class="fas fa-arrow-up text-success"></i>';
-                        }
-                        if (trend.trend == -1) {
-                            return '<i class="fas fa-arrow-down text-danger"></i>';
-                        }
-                        if (trend.trend == -2) {
-                            return '<i class="fas fa-arrow-down text-danger"></i> <i class="fas fa-arrow-down text-danger"></i>';
-                        }
-                        return '<i class="fas fa-arrows-left-right text-secondary"></i>';
-                    };
-
-
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = ` 
-                        <td class="text-nowrap">${item.instId || ''}</td>
-                        <td class="text-nowrap">${item.timestamp ? formatTimestamp(item.timestamp) : ''}</td>
-                        <td class="text-nowrap">${item.long_percent ?? ''}</td>
-                        <td class="text-nowrap">${item.short_percent ?? ''}</td>
-                        <td class="text-nowrap">${item.funding_rate_percent ?? ''}</td>
-                        <td class="text-nowrap">${format_vol24h_usdt ?? ''}</td>
-                        <td class="text-nowrap">${format_mktcap ?? ''}</td>
-                        <td class="text-nowrap">${volCapRatio}</td>
-
-                        <td class="text-nowrap">${vol24h_percent}</td>
-                        
-                        <td class="text-nowrap">${price_changes['15min']?.percent ?? '-'}</td>
-                        <td class="text-nowrap">${price_changes['1h']?.percent ?? '-'}</td>
-                        <td class="text-nowrap">${price_changes['4h']?.percent ?? '-'}</td>
-                        <td class="text-nowrap" title="${trend.label}"><span style="display: none" >${trendText()}</span><span>${getTrendIcon()}</span></td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-
-                window.dataTable = new DataTable("#ratioTable", {
-                    searchable: true,
-                    sortable: true,
-                    perPage: 25,
-                    sort: [[4, "desc"]], // Sort theo short_percent giảm dần
-                });
-
-                initializeColumnToggle();
-
-            } catch (err) {
-                console.error("Lỗi khi tải dữ liệu:", err);
-                document.getElementById("ratioTable").style.display = "none";
-                document.getElementById("noDataMessage").style.display = "block";
-            }
-        }
-
-        loadData();
     </script>
 
 </body>
