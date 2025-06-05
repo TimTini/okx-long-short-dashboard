@@ -30,7 +30,7 @@ async function loadData() {
         const tableData = instrument_ratios.map((item) => {
             const vol24_usdt = item?.market_future ? item.market_future?.turnOver24h ?? 0.0 : 0.0;
             const cap = item?.market_spot?.marketCap ?? item?.coin_info?.marketCap ?? 0.0;
-            const volCapRatio = vol24_usdt && cap && cap > 0 ? ((vol24_usdt / cap) * 100).toFixed(2) : "0.0";
+            const volCapRatio = vol24_usdt && cap && cap > 0 ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
             const format_vol24h_usdt = item?.market_future?.format?.turnOver24h ?? "";
             const format_mktcap = item?.market_spot?.format?.marketCap ?? item?.coin_info?.format?.marketCap ?? "";
             const vol24h_percent = item?.volume24h_changes?.["15min"]?.percent ?? "0";
@@ -101,12 +101,14 @@ async function loadData() {
             return [
                 item.instId || "",
                 item.timestamp ? formatTimestamp(item.timestamp) : "",
-                item.long_percent ?? "",
-                item.short_percent ?? "",
-                item.funding_rate_percent ?? "",
-                format_vol24h_usdt,
-                format_mktcap,
-                volCapRatio,
+                parseFloat(item.long_percent ?? "").toFixed(2),
+                parseFloat(item.short_percent ?? "0").toFixed(2),
+                parseFloat(item.funding_rate_percent ?? "0").toFixed(4),
+                // Thêm data-sort cho format_vol24h_usdt
+                `<span data-sort="${vol24_usdt}">${format_vol24h_usdt}</span>`,
+                // Thêm data-sort cho format_mktcap
+                `<span data-sort="${cap}">${format_mktcap}</span>`,
+                parseFloat(volCapRatio).toFixed(2),
                 vol24h_percent,
                 item?.price_changes?.["15min"]?.percent ?? "-",
                 item?.price_changes?.["1h"]?.percent ?? "-",
@@ -114,21 +116,7 @@ async function loadData() {
                 `<span style="display: none">${trendText()}</span><span title="${trend.label}">${getTrendIcon()}</span>`,
             ];
         });
-        // Tạo custom sorting plugin cho tất cả các cột
-        $.fn.dataTable.ext.type.order["empty-last-pre"] = function (data) {
-            if (data === "" || data === "-" || data === null || data === undefined) {
-                return Number.MAX_SAFE_INTEGER;
-            }
 
-            // Xử lý cho chuỗi HTML (vì một số cột có thể chứa HTML)
-            if (typeof data === "string" && data.includes("<")) {
-                data = data.replace(/<[^>]+>/g, "");
-            }
-
-            // Thử chuyển đổi sang số
-            const numericValue = parseFloat(data.toString().replace(/[^\d.-]/g, ""));
-            return isNaN(numericValue) ? data.toString().toLowerCase() : numericValue;
-        };
         // Initialize DataTable
         window.dataTable = new DataTable("#ratioTable", {
             data: tableData,
@@ -146,8 +134,17 @@ async function loadData() {
             columnDefs: [
                 {
                     targets: "_all", // áp dụng cho tất cả các cột
-                    type: "empty-last-pre",
-                    className: "text-nowrap text-right",
+                    className: "text-nowrap",
+                },
+                {
+                    targets: [5, 6],
+                    type: "num", // Đảm bảo sort kiểu số
+                    render: function (data, type) {
+                        if (type === "sort") {
+                            return $(data).data("sort");
+                        }
+                        return data;
+                    },
                 },
             ],
             ordering: {
