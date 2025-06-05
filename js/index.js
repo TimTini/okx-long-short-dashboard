@@ -7,6 +7,21 @@ function formatTimestamp(timestamp) {
     const pad = (n) => n.toString().padStart(2, "0");
     return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
+function handleTradeWindow(instId) {
+    const tradeUrl = `https://www.okx.com/vi/trade-swap/${instId}`;
+
+    if (window.tradeWindow && !window.tradeWindow.closed) {
+        try {
+            window.tradeWindow.location.href = tradeUrl;
+            window.tradeWindow.focus();
+        } catch (e) {
+            console.error("Không thể cập nhật URL cửa sổ trade:", e);
+            window.tradeWindow = window.open(tradeUrl, "_blank");
+        }
+    } else {
+        window.tradeWindow = window.open(tradeUrl, "_blank");
+    }
+}
 
 async function loadData() {
     try {
@@ -98,6 +113,12 @@ async function loadData() {
                 return '<i class="fas fa-arrows-left-right text-secondary"></i>';
             };
 
+            // Sử dụng trong tradeLink
+            const tradeLink = `<a href="#" 
+    onclick="handleTradeWindow('${item.instId}'); return false;" 
+    class="btn btn-sm btn-primary">
+    <i class="fas fa-exchange-alt"></i> Trade
+</a>`;
             return [
                 item.instId || "",
                 item.timestamp ? formatTimestamp(item.timestamp) : "",
@@ -113,7 +134,8 @@ async function loadData() {
                 item?.price_changes?.["15min"]?.percent ?? "-",
                 item?.price_changes?.["1h"]?.percent ?? "-",
                 item?.price_changes?.["4h"]?.percent ?? "-",
-                `<span style="display: none">${trendText()}</span><span title="${trend.label}">${getTrendIcon()}</span>`,
+                `<span data-sort="${trend.trend}"  title="${trend.label}">${getTrendIcon()}</span>`,
+                tradeLink,
             ];
         });
 
@@ -137,7 +159,7 @@ async function loadData() {
                     className: "text-nowrap",
                 },
                 {
-                    targets: [5, 6],
+                    targets: [5, 6, 12],
                     type: "num", // Đảm bảo sort kiểu số
                     render: function (data, type) {
                         if (type === "sort") {
@@ -145,6 +167,11 @@ async function loadData() {
                         }
                         return data;
                     },
+                },
+                {
+                    targets: [13], // cột trade
+                    orderable: false, // không cho phép sắp xếp
+                    className: "text-center", // căn giữa button
                 },
             ],
             ordering: {
