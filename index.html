@@ -18,7 +18,7 @@
 
     <style>
         body {
-            padding: 20px;
+            padding: 1rem;
         }
 
         table.dataTable-table {
@@ -28,11 +28,10 @@
         #noDataMessage {
             text-align: center;
             padding: 20px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #ccc;
         }
-    </style>
-    <style>
+
         .column-toggle-menu {
             padding: 8px;
             min-width: 200px;
@@ -41,33 +40,55 @@
         }
 
         .column-toggle-menu .dropdown-item {
-            padding: 8px 12px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.9rem;
         }
 
         .column-toggle-menu .dropdown-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .column-toggle-menu .form-check {
-            padding-left: 0;
-            margin-bottom: 0;
-        }
-
         .column-toggle-menu .form-check-input {
             margin-right: 8px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .dropdown-toggle {
+                font-size: 0.9rem;
+            }
+
+            .column-toggle-menu {
+                max-height: 300px;
+                font-size: 0.85rem;
+            }
+
+            table th,
+            table td {
+                font-size: 0.75rem;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h2 class="mb-4">📊 OKX tỉ lệ Long/Short (Cập nhật mỗi 15 phút)</h2>
+    <div class="container-fluid">
+        <h2 class="mb-3">📊 OKX tỉ lệ Long/Short (Cập nhật mỗi 15 phút)</h2>
+
         <div class="mb-3">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleButton"
+                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="columnToggleButton"
                     data-bs-toggle="dropdown">
                     Ẩn/Hiện Cột
                 </button>
@@ -75,16 +96,10 @@
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li>
-                        <a class="dropdown-item" href="#" id="showAllColumns">
-                            <i class="bi bi-eye"></i> Hiện tất cả
-                        </a>
+                    <li><a class="dropdown-item" href="#" id="showAllColumns"><i class="bi bi-eye"></i> Hiện tất cả</a>
                     </li>
-                    <li>
-                        <a class="dropdown-item" href="#" id="hideAllColumns">
-                            <i class="bi bi-eye-slash"></i> Ẩn tất cả
-                        </a>
-                    </li>
+                    <li><a class="dropdown-item" href="#" id="hideAllColumns"><i class="bi bi-eye-slash"></i> Ẩn tất
+                            cả</a></li>
                 </ul>
             </div>
         </div>
@@ -92,8 +107,9 @@
         <div id="noDataMessage" style="display: none;">
             ⏳ Dữ liệu đang được xử lý, vui lòng quay lại sau.
         </div>
+
         <div class="table-responsive">
-            <table id="ratioTable" class="table table-dark table-bordered table-hover table-striped"
+            <table id="ratioTable" class="table table-dark table-bordered table-hover table-striped w-100"
                 style="display: none;">
                 <thead>
                     <tr>
@@ -116,6 +132,7 @@
             </table>
         </div>
     </div>
+
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -294,7 +311,7 @@
                             ? item.coin_info.format?.marketCap
                             : "";
 
-                    const vol24h_percent = item?.volume24h_changes?.["15min"]?.percent ?? '';
+                    const vol24h_percent = item?.volume24h_changes?.["15min"]?.percent ?? '0';
 
                     const price_changes = {
                         "15min": {
