@@ -1,3 +1,6 @@
 body {
     padding: 1rem;
 }
+#ratioTable thead th {
+    border: 1px solid rgb(64, 67, 70);
+}
