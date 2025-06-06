@@ -14,6 +14,12 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="css/all.min.css">
     <link rel="stylesheet" href="css/index.css">
+    <style>
+        .dark-mode .tooltip-inner {
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body>
@@ -36,24 +42,45 @@
             <table id="ratioTable" class="table table-hover cell-border mb-0">
                 <thead>
                     <tr>
-                        <th class="text-nowrap">Cặp giao dịch</th>
-                        <th class="text-nowrap">Update At</th>
-                        <th class="text-nowrap">Long %</th>
-                        <th class="text-nowrap">Short %</th>
-                        <th class="text-nowrap">Funding %</th>
-                        <th class="text-nowrap">Vol 24h</th>
-                        <th class="text-nowrap">Cap</th>
-                        <th class="text-nowrap">Vol/Cap %</th>
-                        <th class="text-nowrap">Vol15m %</th>
-                        <th class="text-nowrap">Vol1h %</th>
-                        <th class="text-nowrap">Vol4h %</th>
-                        <th class="text-nowrap">15m %</th>
-                        <th class="text-nowrap">1h %</th>
-                        <th class="text-nowrap">4h %</th>
-                        <th class="text-nowrap">Xu Hướng</th>
-
-                        <th class="text-nowrap">Trade</th> <!-- Thêm cột mới -->
+                        <th class="text-nowrap" data-bs-toggle="tooltip" title="Tên cặp giao dịch">Cặp
+                            giao dịch</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip" title="Thời gian cập nhật dữ liệu gần nhất">
+                            Update At</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ người đang mở vị thế Long trên tổng vị thế (%)">Long %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ người đang mở vị thế Short trên tổng vị thế (%)">Short %
+                        </th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ Funding hiện tại (Long trả Short nếu dương, ngược lại nếu âm)">Funding %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Khối lượng giao dịch hợp đồng tương lai trong 24 giờ (đơn vị USDT)">Vol 24h</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Vốn hóa thị trường hiện tại của đồng coin">Cap</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ giữa khối lượng giao dịch 24h và vốn hóa thị trường (%)">
+                            Vol/Cap %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ thay đổi khối lượng giao dịch trong 15 phút gần nhất (%)">
+                            Vol15m %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ thay đổi khối lượng giao dịch trong 1 giờ gần nhất (%)">
+                            Vol1h %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ thay đổi khối lượng giao dịch trong 4 giờ gần nhất (%)">
+                            Vol4h %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ thay đổi giá trong 15 phút gần nhất (%)">15m %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ thay đổi giá trong 1 giờ gần nhất (%)">1h %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Tỷ lệ thay đổi giá trong 4 giờ gần nhất (%)">4h %</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Phân tích xu hướng dựa trên biến động giá trong 4h và dữ liệu khác">Xu Hướng</th>
+                        <th class="text-nowrap" data-bs-toggle="tooltip"
+                            title="Liên kết để mở giao dịch trực tiếp trên OKX">Trade</th>
                     </tr>
+
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
@@ -68,7 +95,11 @@
     <script src="js/datatables.min.js"></script>
     <!-- Font Awesome -->
     <script src="js/all.min.js"></script>
-    <script src="js/index.js">
+    <script src="js/index.js"></script>
+    <script>
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el);
+        });
 
     </script>
 
