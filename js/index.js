@@ -48,7 +48,9 @@ async function loadData() {
             const volCapRatio = vol24_usdt && cap && cap > 0 ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
             const format_vol24h_usdt = item?.market_future?.format?.turnOver24h ?? "";
             const format_mktcap = item?.market_spot?.format?.marketCap ?? item?.coin_info?.format?.marketCap ?? "";
-            const vol24h_percent = item?.volume_changes?.["15m"]?.percent ?? "0";
+            const vol15m_percent = item?.volume_changes?.["15m"]?.percent ?? "0";
+            const vol1h_percent = item?.volume_changes?.["1h"]?.percent ?? "0";
+            const vol4h_percent = item?.volume_changes?.["4h"]?.percent ?? "0";
             const trend = item?.trend_analysis ?? { emoji: "⚠️", label: "Thiếu dữ liệu" };
             const price_changes = {
                 "15m": {
@@ -130,7 +132,9 @@ async function loadData() {
                 // Thêm data-sort cho format_mktcap
                 `<span data-sort="${cap}">${format_mktcap}</span>`,
                 parseFloat(volCapRatio).toFixed(2),
-                vol24h_percent,
+                vol15m_percent,
+                vol1h_percent,
+                vol4h_percent,
                 item?.price_changes?.["15m"]?.percent ?? "-",
                 item?.price_changes?.["1h"]?.percent ?? "-",
                 item?.price_changes?.["4h"]?.percent ?? "-",
@@ -159,7 +163,7 @@ async function loadData() {
                     className: "text-nowrap",
                 },
                 {
-                    targets: [5, 6, 12],
+                    targets: [5, 6, 14],
                     type: "num", // Đảm bảo sort kiểu số
                     render: function (data, type) {
                         if (type === "sort") {
@@ -169,7 +173,7 @@ async function loadData() {
                     },
                 },
                 {
-                    targets: [13], // cột trade
+                    targets: [15], // cột trade
                     orderable: false, // không cho phép sắp xếp
                     className: "text-center", // căn giữa button
                 },
