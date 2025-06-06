@@ -48,7 +48,7 @@ async function loadData() {
             const volCapRatio = vol24_usdt && cap && cap > 0 ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
             const format_vol24h_usdt = item?.market_future?.format?.turnOver24h ?? "";
             const format_mktcap = item?.market_spot?.format?.marketCap ?? item?.coin_info?.format?.marketCap ?? "";
-            const vol24h_percent = item?.volume24h_changes?.["15m"]?.percent ?? "0";
+            const vol24h_percent = item?.volume_changes?.["15m"]?.percent ?? "0";
             const trend = item?.trend_analysis ?? { emoji: "⚠️", label: "Thiếu dữ liệu" };
             const price_changes = {
                 "15m": {
