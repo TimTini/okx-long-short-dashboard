@@ -45,27 +45,18 @@ async function loadData() {
         const tableData = instrument_ratios.map((item) => {
             const vol24_usdt = item?.market_future ? item.market_future?.turnOver24h ?? 0.0 : 0.0;
             const cap = item?.market_spot?.marketCap ?? item?.coin_info?.marketCap ?? 0.0;
-            const volCapRatio = vol24_usdt && cap && cap > 0 ? ((vol24_usdt / cap) * 100).toFixed(2) : 0.0;
+            const volCapRatio = vol24_usdt && cap && cap > 0 ? ((vol24_usdt / cap) * 100).toFixed(2) : "0.00";
             const format_vol24h_usdt = item?.market_future?.format?.turnOver24h ?? "";
             const format_mktcap = item?.market_spot?.format?.marketCap ?? item?.coin_info?.format?.marketCap ?? "";
-            const vol15m_percent = item?.volume_changes?.["15m"]?.percent ?? "0";
-            const vol1h_percent = item?.volume_changes?.["1h"]?.percent ?? "0";
-            const vol4h_percent = item?.volume_changes?.["4h"]?.percent ?? "0";
+
+            const vol15m_changes = item?.volume_changes?.["15m"] ?? {};
+            const vol1h_changes = item?.volume_changes?.["1h"] ?? {};
+            const vol4h_changes = item?.volume_changes?.["4h"] ?? {};
+
             const trend = item?.trend_analysis ?? { emoji: "⚠️", label: "Thiếu dữ liệu" };
-            const price_changes = {
-                "15m": {
-                    percent: item?.price_changes?.["15m"]?.percent ?? null,
-                    current: item?.price_changes?.["15m"]?.current ?? null,
-                },
-                "1h": {
-                    percent: item?.price_changes?.["1h"]?.percent ?? null,
-                    current: item?.price_changes?.["1h"]?.current ?? null,
-                },
-                "4h": {
-                    percent: item?.price_changes?.["4h"]?.percent ?? null,
-                    current: item?.price_changes?.["4h"]?.current ?? null,
-                },
-            };
+            const price15m_changes = item?.price_changes?.["15m"] ?? {};
+            const price1h_changes = item?.price_changes?.["1h"] ?? {};
+            const price4h_changes = item?.price_changes?.["4h"] ?? {};
 
             // Các hàm helper giữ nguyên như cũ
             const trendText = () => {
@@ -115,30 +106,53 @@ async function loadData() {
                 return '<i class="fas fa-arrows-left-right text-secondary"></i>';
             };
 
+            const titleChangesValue = (vol_changes) => {
+                return `Hiện tại: ${vol_changes.current} \nTrước đó: ${vol_changes.previous}`;
+            };
+
+            const spanHTML = (value, title = "", data_sort = null) => {
+                return `<span data-sort="${data_sort ?? 0}" title="${title ?? ""}">${value}</span>`;
+            };
+
             // Sử dụng trong tradeLink
             const tradeLink = `<a href="#" 
-    onclick="handleTradeWindow('${item.instId}'); return false;" 
-    class="btn btn-sm btn-primary">
-    <i class="fas fa-exchange-alt"></i> Trade
-</a>`;
+                onclick="handleTradeWindow('${item.instId}'); return false;" 
+                class="btn btn-sm btn-primary">
+                <i class="fas fa-exchange-alt"></i> Trade
+            </a>`;
+
             return [
+                // #0 InstID
                 item.instId || "",
+                // #1 Update At
                 item.timestamp ? formatTimestamp(item.timestamp) : "",
+                // #2 long %
                 parseFloat(item.long_percent ?? "").toFixed(2),
+                // #3 short %
                 parseFloat(item.short_percent ?? "0").toFixed(2),
+                // #4 funding rate
                 parseFloat(item.funding_rate_percent ?? "0").toFixed(4),
-                // Thêm data-sort cho format_vol24h_usdt
-                `<span data-sort="${vol24_usdt}">${format_vol24h_usdt}</span>`,
-                // Thêm data-sort cho format_mktcap
-                `<span data-sort="${cap}">${format_mktcap}</span>`,
+                // #5 vol24_usdt
+                spanHTML(format_vol24h_usdt, vol24_usdt, vol24_usdt),
+                // #6 cap
+                spanHTML(format_mktcap, cap, cap),
+                // #7 Vol/Cap %
                 parseFloat(volCapRatio).toFixed(2),
-                vol15m_percent,
-                vol1h_percent,
-                vol4h_percent,
-                item?.price_changes?.["15m"]?.percent ?? "-",
-                item?.price_changes?.["1h"]?.percent ?? "-",
-                item?.price_changes?.["4h"]?.percent ?? "-",
-                `<span data-sort="${trend.trend}"  title="${trend.label}">${getTrendIcon()}</span>`,
+                // #8 vol15m_changes
+                spanHTML(vol15m_changes?.percent, titleChangesValue(vol15m_changes), vol15m_changes?.percent ?? 0),
+                // #9 vol1h_changes
+                spanHTML(vol1h_changes?.percent, titleChangesValue(vol1h_changes), vol1h_changes?.percent ?? 0),
+                // #10 vol4h_changes
+                spanHTML(vol4h_changes?.percent, titleChangesValue(vol4h_changes), vol4h_changes?.percent ?? 0),
+                // #11 price15m_changes
+                spanHTML(price15m_changes?.percent, titleChangesValue(price15m_changes), price15m_changes?.percent ?? 0),
+                // #12 price1h_changes
+                spanHTML(price1h_changes?.percent, titleChangesValue(price1h_changes), price1h_changes?.percent ?? 0),
+                // #13 price4h_changes
+                spanHTML(price4h_changes?.percent, titleChangesValue(price4h_changes), price4h_changes?.percent ?? 0),
+                // #14 trend
+                spanHTML(getTrendIcon(), trend.label, trend.trend),
+                // #15 link
                 tradeLink,
             ];
         });
@@ -152,7 +166,7 @@ async function loadData() {
             layout: {
                 top1: "searchBuilder",
                 topStart: {
-                    buttons: ["colvis"],
+                    buttons: ["colvis","excel"],
                 },
             },
             stateSave: true,
@@ -163,11 +177,11 @@ async function loadData() {
                     className: "text-nowrap",
                 },
                 {
-                    targets: [5, 6, 14],
+                    targets: [5, 6, 8, 9, 10, 11, 12, 13, 14],
                     type: "num", // Đảm bảo sort kiểu số
                     render: function (data, type) {
                         if (type === "sort") {
-                            return $(data).data("sort");
+                            return $(data).data("sort") || 0;
                         }
                         return data;
                     },
