@@ -115,12 +115,15 @@ async function loadData() {
             };
 
             // Sử dụng trong tradeLink
-            const tradeLink = `<a href="#" 
+            const tradeLink = `
+            <button onclick="showAnalysis('${item.instId}')" class="btn btn-sm btn-info me-2">
+                <i class="fas fa-chart-line"></i>
+            </button>
+            <a href="#" 
                 onclick="handleTradeWindow('${item.instId}'); return false;" 
                 class="btn btn-sm btn-primary">
                 <i class="fas fa-exchange-alt"></i> Trade
             </a>`;
-
             return [
                 // #0 InstID
                 item.instId || "",
@@ -166,7 +169,7 @@ async function loadData() {
             layout: {
                 top1: "searchBuilder",
                 topStart: {
-                    buttons: ["colvis","excel"],
+                    buttons: ["colvis", "excel"],
                 },
             },
             stateSave: true,
@@ -214,4 +217,109 @@ async function loadData() {
     }
 }
 
+async function showAnalysis(instId) {
+    try {
+        const response = await fetch(`${baseUrl}/api/market_analysis?inst_id=${instId}&timeframe=1H`);
+        const data = await response.json();
+        // Thêm tên coin
+        document.getElementById("coinName").textContent = instId;
+
+        // Thêm sự kiện cho nút trade
+        const tradeBtn = document.getElementById("modalTradeBtn");
+        tradeBtn.onclick = (e) => {
+            e.preventDefault();
+            handleTradeWindow(instId); // Mở cửa sổ trade
+        };
+        // Cập nhật nội dung modal
+        document.getElementById("recommendation").textContent = data.analysis.recommendation;
+        document.getElementById("recommendation").className = `badge bg-${getRecommendationColor(data.analysis.recommendation)}`;
+
+        // Hiển thị signals
+        document.getElementById("signals").innerHTML = data.analysis.signals.map((signal) => `<li class="mb-1">• ${signal}</li>`).join("");
+
+        // Hiển thị indicators
+        const ti = data.analysis.technical_indicators;
+        document.getElementById("indicators").innerHTML = `
+        <table class="table table-sm">
+            <tr>
+                <td>RSI</td><td>${ti.rsi.toFixed(2)}</td>
+                <td>MACD</td><td>${ti.macd.toFixed(4)}</td>
+            </tr>
+            <tr>
+                <td>SMA20</td><td>${ti.sma20.toFixed(4)}</td>
+                <td>SMA50</td><td>${ti.sma50.toFixed(4)}</td>
+            </tr>
+            <tr>
+                <td>Volume</td><td>${ti.volume}</td>
+                <td>Volume EMA20</td><td>${ti.volume_ema20.toFixed(2)}</td>
+            </tr>
+        </table>`;
+
+        // Hiển thị reasons
+        document.getElementById("reasons").innerHTML = data.analysis.reasons
+            .map(
+                (reason) => `
+                <li class="mb-2">
+                    <strong>${reason.indicator}:</strong> ${reason.reason}<br>
+                    <small class="text-muted">${reason.value}</small>
+                </li>`
+            )
+            .join("");
+
+        // Thêm phần hiển thị nến
+        const candlesticksElement = document.getElementById("candlesticks");
+        const patterns = data.analysis.candlestick_patterns;
+
+        if (patterns && Object.keys(patterns).length > 0) {
+            const patternsHTML = Object.entries(patterns)
+                .map(([pattern, info]) => {
+                    const signalClass = info.signal === "bullish" ? "text-success" : info.signal === "bearish" ? "text-danger" : "text-warning";
+
+                    return `
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h6 class="card-title text-capitalize">
+                                ${pattern} 
+                                <span class="badge ${signalClass}">
+                                    ${info.signal}
+                                </span>
+                            </h6>
+                            <p class="card-text mb-1">${info.meaning}</p>
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">Vị trí: ${info.position}</small>
+                                <small class="text-muted">Độ mạnh: ${info.strength}%</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                })
+                .join("");
+
+            candlesticksElement.innerHTML = patternsHTML;
+            candlesticksElement.parentElement.style.display = "block";
+        } else {
+            candlesticksElement.parentElement.style.display = "none";
+        }
+        // Hiển thị modal
+        const modal = new bootstrap.Modal(document.getElementById("analysisModal"));
+        modal.show();
+    } catch (error) {
+        console.error("Error fetching analysis:", error);
+        alert("Không thể lấy dữ liệu phân tích");
+    }
+}
+function getRecommendationColor(rec) {
+    switch (rec.toUpperCase()) {
+        case "STRONG_BUY":
+            return "strong-buy";
+        case "BUY":
+            return "success";
+        case "SELL":
+            return "danger";
+        case "HOLD":
+            return "warning";
+        default:
+            return "secondary";
+    }
+}
 loadData();

@@ -19,6 +19,13 @@
             background-color: #333;
             color: #fff;
         }
+
+        .bg-strong-buy {
+            background-color: #00ff88 !important;
+            /* Màu xanh sáng hơn */
+            color: #000 !important;
+            /* Chữ đen để dễ đọc */
+        }
     </style>
 </head>
 
@@ -87,7 +94,51 @@
         </div>
     </div>
 
-
+    <div class="modal fade" id="analysisModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="modal-title">Phân tích kỹ thuật (1h)</h5>
+                        <span id="coinName" class="text-muted">LQTY-USDT-SWAP</span>
+                    </div>
+                    <div class="d-flex">
+                        <button class="btn btn-primary me-2" id="modalTradeBtn">
+                            <svg class="svg-inline--fa fa-right-left" aria-hidden="true" focusable="false"
+                                data-prefix="fas" data-icon="right-left" role="img" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512" data-fa-i2svg="">
+                                <path fill="currentColor"
+                                    d="M32 96l320 0 0-64c0-12.9 7.8-24.6 19.8-29.6s25.7-2.2 34.9 6.9l96 96c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-96 96c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6l0-64L32 160c-17.7 0-32-14.3-32-32s14.3-32 32-32zM480 352c17.7 0 32 14.3 32 32s-14.3 32-32 32l-320 0 0 64c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-96-96c-6-6-9.4-14.1-9.4-22.6s3.4-16.6 9.4-22.6l96-96c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 64 320 0z">
+                                </path>
+                            </svg> Trade
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6>Khuyến nghị: <span id="recommendation" class="badge"></span></h6>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Tín hiệu:</h6>
+                        <ul id="signals" class="list-unstyled"></ul>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Mô hình nến:</h6>
+                        <div id="candlesticks" class="list-unstyled"></div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Chỉ báo kỹ thuật:</h6>
+                        <div id="indicators" class="table-responsive"></div>
+                    </div>
+                    <div>
+                        <h6>Lý do:</h6>
+                        <ul id="reasons" class="list-unstyled"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Scripts -->
     <!-- Bootstrap -->
     <script src="js/bootstrap.bundle.min.js"></script>
