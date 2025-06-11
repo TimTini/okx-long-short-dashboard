@@ -114,6 +114,17 @@ async function loadData() {
                 return `<span data-sort="${data_sort ?? 0}" title="${title ?? ""}">${value}</span>`;
             };
 
+            const recommendHtml = () => {
+                if (!item?.recommendation) {
+                    return ``;
+                }
+
+                let text = item.recommendation;
+                let cssClass = getRecommendationColor(item.recommendation);
+
+                return `<div class="bg-${cssClass} rounded-pill rounded p-1 text-center">${text}</div>`;
+            };
+
             // Sử dụng trong tradeLink
             const tradeLink = `
             <button onclick="showAnalysis('${item.instId}')" class="btn btn-sm btn-info me-2">
@@ -153,9 +164,11 @@ async function loadData() {
                 spanHTML(price1h_changes?.percent, titleChangesValue(price1h_changes), price1h_changes?.percent ?? 0),
                 // #13 price4h_changes
                 spanHTML(price4h_changes?.percent, titleChangesValue(price4h_changes), price4h_changes?.percent ?? 0),
-                // #14 trend
+                // #14 recommendation
+                recommendHtml(),
+                // #15 trend
                 spanHTML(getTrendIcon(), trend.label, trend.trend),
-                // #15 link
+                // #16 link
                 tradeLink,
             ];
         });
@@ -180,7 +193,7 @@ async function loadData() {
                     className: "text-nowrap",
                 },
                 {
-                    targets: [5, 6, 8, 9, 10, 11, 12, 13, 14],
+                    targets: [5, 6, 8, 9, 10, 11, 12, 13, 15],
                     type: "num", // Đảm bảo sort kiểu số
                     render: function (data, type) {
                         if (type === "sort") {
@@ -317,7 +330,7 @@ function getRecommendationColor(rec) {
         case "SELL":
             return "danger";
         case "HOLD":
-            return "warning";
+            return "info";
         default:
             return "secondary";
     }
