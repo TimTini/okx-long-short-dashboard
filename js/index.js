@@ -193,7 +193,7 @@ async function loadData() {
                     className: "text-nowrap",
                 },
                 {
-                    targets: [5, 6, 8, 9, 10, 11, 12, 13, 15],
+                    targets: [5, 6, 8, 9, 10, 11, 12, 15],
                     type: "num", // Đảm bảo sort kiểu số
                     render: function (data, type) {
                         if (type === "sort") {
@@ -203,7 +203,7 @@ async function loadData() {
                     },
                 },
                 {
-                    targets: [15], // cột trade
+                    targets: [16], // cột trade
                     orderable: false, // không cho phép sắp xếp
                     className: "text-center", // căn giữa button
                 },
