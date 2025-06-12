@@ -209,8 +209,9 @@ async function loadData() {
     }
 }
 
-async function showAnalysis(instId, timeframe = "1H") {
+async function showAnalysis(instId) {
     try {
+        const timeframe = document.getElementById("timeframeSelect").value;
         const response = await fetch(`${baseUrl}/api/market_analysis?inst_id=${instId}&timeframe=${timeframe}`);
         const data = await response.json();
         // Thêm tên coin
@@ -372,7 +373,7 @@ function formatVolume(vol) {
 document.getElementById("timeframeSelect").addEventListener("change", () => {
     const instId = document.getElementById("coinName").textContent;
     const timeframe = document.getElementById("timeframeSelect").value;
-    showAnalysis(instId, timeframe);
+    showAnalysis(instId);
 });
 
 loadData();
