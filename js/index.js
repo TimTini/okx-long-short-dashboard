@@ -69,38 +69,6 @@ async function loadData() {
             const price1h_changes = item?.price_changes?.["1h"] ?? {};
             const price4h_changes = item?.price_changes?.["4h"] ?? {};
 
-            // Các hàm helper giữ nguyên như cũ
-            const trendText = () => {
-                const p4h_percent = price_changes["4h"]?.percent;
-
-                // Format số theo yêu cầu: phần nguyên 3 chữ số, phần thập phân 2 chữ số
-                const formatNumber = (num) => {
-                    const [intPart, decPart = ""] = String(num).split(".");
-
-                    // Pad phần nguyên với số 0 bên trái cho đủ 3 chữ số
-                    const paddedInt = intPart.padStart(3, "0");
-
-                    // Pad phần thập phân với số 0 bên phải cho đủ 2 chữ số
-                    const paddedDec = decPart.padEnd(2, "0");
-
-                    // Nối lại và remove dấu chấm
-                    return `${paddedInt}${paddedDec}`;
-                };
-
-                if (!p4h_percent) {
-                    return `[${(trend?.trend ?? 0) + 2}.00000] ${trend.emoji}`;
-                }
-
-                if (p4h_percent >= 0) {
-                    const p4h_percent_positive = parseFloat(p4h_percent);
-                    const processedPositive = formatNumber(p4h_percent_positive);
-                    return `[${(trend?.trend ?? 0) + 2}.${processedPositive}] ${trend.emoji}`;
-                }
-
-                const p4h_percent_negative = 100 + parseFloat(p4h_percent);
-                const processedNegative = formatNumber(p4h_percent_negative);
-                return `[${(trend?.trend ?? 0) + 2}.${processedNegative}] ${trend.emoji}`;
-            };
             const getTrendIcon = () => {
                 if (trend.trend == 2) {
                     return '<i class="fas fa-arrow-up text-success"></i> <i class="fas fa-arrow-up text-success"></i>';
@@ -241,9 +209,9 @@ async function loadData() {
     }
 }
 
-async function showAnalysis(instId) {
+async function showAnalysis(instId, timeframe = "1H") {
     try {
-        const response = await fetch(`${baseUrl}/api/market_analysis?inst_id=${instId}&timeframe=1H`);
+        const response = await fetch(`${baseUrl}/api/market_analysis?inst_id=${instId}&timeframe=${timeframe}`);
         const data = await response.json();
         // Thêm tên coin
         document.getElementById("coinName").textContent = instId;
@@ -364,8 +332,11 @@ async function showAnalysis(instId) {
             candlesticksElement.parentElement.style.display = "none";
         }
         // Hiển thị modal
-        const modal = new bootstrap.Modal(document.getElementById("analysisModal"));
-        modal.show();
+        const modalEl = document.getElementById("analysisModal");
+        if (!modalEl.classList.contains("show")) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
     } catch (error) {
         console.error("Error fetching analysis:", error);
         alert("Không thể lấy dữ liệu phân tích");
@@ -398,4 +369,10 @@ function formatVolume(vol) {
     }
     return vol.toFixed(2);
 }
+document.getElementById("timeframeSelect").addEventListener("change", () => {
+    const instId = document.getElementById("coinName").textContent;
+    const timeframe = document.getElementById("timeframeSelect").value;
+    showAnalysis(instId, timeframe);
+});
+
 loadData();

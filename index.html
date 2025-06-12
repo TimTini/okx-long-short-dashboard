@@ -99,7 +99,7 @@
                         <th class="text-nowrap" data-bs-toggle="tooltip"
                             title="Tỷ lệ thay đổi giá trong 4 giờ gần nhất (%)">4h %</th>
                         <th class="text-nowrap" data-bs-toggle="tooltip"
-                            title="Gợi ý hành động dựa trên phân tích dữ liệu">Khuyến nghị</th>
+                            title="Gợi ý hành động dựa trên phân tích dữ liệu">Khuyến nghị (1H)</th>
                         <th class="text-nowrap" data-bs-toggle="tooltip"
                             title="Phân tích xu hướng dựa trên biến động giá trong 4h và dữ liệu khác">Xu Hướng</th>
                         <th class="text-nowrap" data-bs-toggle="tooltip"
@@ -117,7 +117,15 @@
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between align-items-start">
                     <div>
-                        <h5 class="modal-title">Phân tích kỹ thuật (1h)</h5>
+                        <div class="d-flex align-items-center mb-2">
+                            <h5 class="modal-title mb-0">Phân tích kỹ thuật</h5>
+                            <select id="timeframeSelect" class="form-select form-select-sm ms-2" style="width: auto;">
+                                <option value="5min">5m</option>
+                                <option value="15min">15m</option>
+                                <option value="1H" selected>1h</option>
+                                <option value="4H">4h</option>
+                            </select>
+                        </div>
                         <span id="coinName" class="text-muted">LQTY-USDT-SWAP</span>
                         <br>
                         <small id="analysisTime" class="text-muted"></small>
