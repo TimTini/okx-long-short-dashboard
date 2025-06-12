@@ -201,6 +201,7 @@ async function loadData() {
                     colvis: "Hiển/Ẩn thị cột",
                 },
             },
+            fixedHeader: true
         });
     } catch (err) {
         console.error("Lỗi khi tải dữ liệu:", err);
