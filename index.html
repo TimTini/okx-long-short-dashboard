@@ -26,6 +26,22 @@
             color: #000 !important;
             /* Chữ đen để dễ đọc */
         }
+
+        /* .table td {
+            vertical-align: middle;
+        }
+
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        .text-success {
+            color: #28a745 !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        } */
     </style>
 </head>
 
@@ -103,6 +119,8 @@
                     <div>
                         <h5 class="modal-title">Phân tích kỹ thuật (1h)</h5>
                         <span id="coinName" class="text-muted">LQTY-USDT-SWAP</span>
+                        <br>
+                        <small id="analysisTime" class="text-muted"></small>
                     </div>
                     <div class="d-flex">
                         <button class="btn btn-primary me-2" id="modalTradeBtn">
@@ -130,7 +148,7 @@
                         <div id="candlesticks" class="list-unstyled"></div>
                     </div>
                     <div class="mb-3">
-                        <h6>Chỉ báo kỹ thuật:</h6>
+                        <!-- <h6>Chỉ báo kỹ thuật:</h6> -->
                         <div id="indicators" class="table-responsive"></div>
                     </div>
                     <div>

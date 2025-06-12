@@ -1,11 +1,22 @@
 const baseUrl = "https://tcn.io.vn";
 const apiUrl = baseUrl + "/api/instrument_ratios";
 
-function formatTimestamp(timestamp) {
+function formatDateTime(timestamp) {
     const d = new Date(timestamp);
-
     const pad = (n) => n.toString().padStart(2, "0");
     return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function formatTimestamp(timestamp) {
+    // Tạo helper function để pad số
+    const pad = (num) => String(num).padStart(2, "0");
+
+    // Tạo date object và điều chỉnh timezone
+    const d = new Date(timestamp);
+    const vietnamTime = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+
+    return `${pad(vietnamTime.getDate())}-${pad(vietnamTime.getMonth() + 1)}-${vietnamTime.getFullYear()} ${pad(vietnamTime.getHours())}:${pad(vietnamTime.getMinutes())}:${pad(
+        vietnamTime.getSeconds()
+    )}`;
 }
 function handleTradeWindow(instId) {
     const tradeUrl = `https://www.okx.com/vi/trade-swap/${instId}`;
@@ -139,7 +150,7 @@ async function loadData() {
                 // #0 InstID
                 item.instId || "",
                 // #1 Update At
-                item.timestamp ? formatTimestamp(item.timestamp) : "",
+                item.timestamp ? formatDateTime(item.timestamp) : "",
                 // #2 long %
                 parseFloat(item.long_percent ?? "").toFixed(2),
                 // #3 short %
@@ -236,7 +247,14 @@ async function showAnalysis(instId) {
         const data = await response.json();
         // Thêm tên coin
         document.getElementById("coinName").textContent = instId;
-
+        // Thêm thời gian phân tích
+        if (data.analysis.analysis_time) {
+            // const time = new Date(data.analysis.analysis_time);
+            const formatted = formatTimestamp(data.analysis.analysis_time);
+            document.getElementById("analysisTime").textContent = `Thời gian phân tích: ${formatted}`;
+        } else {
+            document.getElementById("analysisTime").textContent = "";
+        }
         // Thêm sự kiện cho nút trade
         const tradeBtn = document.getElementById("modalTradeBtn");
         tradeBtn.onclick = (e) => {
@@ -253,20 +271,52 @@ async function showAnalysis(instId) {
         // Hiển thị indicators
         const ti = data.analysis.technical_indicators;
         document.getElementById("indicators").innerHTML = `
-        <table class="table table-sm">
-            <tr>
-                <td>RSI</td><td>${ti.rsi.toFixed(2)}</td>
-                <td>MACD</td><td>${ti.macd.toFixed(4)}</td>
-            </tr>
-            <tr>
-                <td>SMA20</td><td>${ti.sma20.toFixed(4)}</td>
-                <td>SMA50</td><td>${ti.sma50.toFixed(4)}</td>
-            </tr>
-            <tr>
-                <td>Volume</td><td>${ti.volume}</td>
-                <td>Volume EMA20</td><td>${ti.volume_ema20.toFixed(2)}</td>
-            </tr>
-        </table>`;
+<div class="card bg-dark border-secondary">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered border-secondary mb-0">
+                <thead>
+                    <tr>
+                        <th colspan="4" class="text-center bg-dark border-secondary">
+                            <i class="fas fa-chart-line me-2"></i>Chỉ báo kỹ thuật
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- RSI & MACD Group -->
+                    <tr>
+                        <td class="fw-bold bg-dark border-secondary">RSI</td>
+                        <td class="${ti.rsi > 70 ? "text-danger" : ti.rsi < 30 ? "text-success" : "text-light"}">
+                            ${ti.rsi.toFixed(2)}
+                        </td>
+                        <td class="fw-bold bg-dark border-secondary">MACD</td>
+                        <td class="${ti.macd > 0 ? "text-success" : "text-danger"}">
+                            ${ti.macd.toFixed(4)}
+                        </td>
+                    </tr>
+                    
+                    <!-- Moving Averages Group -->
+                    <tr>
+                        <td class="fw-bold bg-dark border-secondary">SMA20</td>
+                        <td class="text-light">${ti.sma20.toFixed(5)}</td>
+                        <td class="fw-bold bg-dark border-secondary">SMA50</td>
+                        <td class="text-light">${ti.sma50.toFixed(5)}</td>
+                    </tr>
+                    
+                    <!-- Volume Group -->
+                    <tr>
+                        <td class="fw-bold bg-dark border-secondary">Volume</td>
+                        <td class="${ti.volume > ti.volume_ema20 ? "text-success" : "text-light"}">
+                            ${formatVolume(ti.volume)}
+                        </td>
+                        <td class="fw-bold bg-dark border-secondary">Vol EMA20</td>
+                        <td class="text-light">${formatVolume(ti.volume_ema20)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>`;
 
         // Hiển thị reasons
         document.getElementById("reasons").innerHTML = data.analysis.reasons
@@ -321,6 +371,7 @@ async function showAnalysis(instId) {
         alert("Không thể lấy dữ liệu phân tích");
     }
 }
+// function formatTimestamp(timestamp) {}
 function getRecommendationColor(rec) {
     switch (rec.toUpperCase()) {
         case "STRONG_BUY":
@@ -334,5 +385,17 @@ function getRecommendationColor(rec) {
         default:
             return "secondary";
     }
+}
+// Thêm hàm format volume
+function formatVolume(vol) {
+    if (!vol) return "0";
+
+    if (vol >= 1000000) {
+        return (vol / 1000000).toFixed(2) + "M";
+    }
+    if (vol >= 1000) {
+        return (vol / 1000).toFixed(2) + "K";
+    }
+    return vol.toFixed(2);
 }
 loadData();
