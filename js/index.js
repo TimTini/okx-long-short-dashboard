@@ -69,6 +69,12 @@ async function loadData() {
             const price1h_changes = item?.price_changes?.["1h"] ?? {};
             const price4h_changes = item?.price_changes?.["4h"] ?? {};
 
+            const instIdHtml = () => {
+                const instId = item?.instId;
+                if (!instId) return "";
+                const short = instId.split("-")[0];
+                return `<span class="shortify-cell" data-short="${short}">${instId}</span>`;
+            };
             const getTrendIcon = () => {
                 if (trend.trend == 2) {
                     return '<i class="fas fa-arrow-up text-success"></i> <i class="fas fa-arrow-up text-success"></i>';
@@ -116,7 +122,7 @@ async function loadData() {
             </a>`;
             return [
                 // #0 InstID
-                item.instId || "",
+                instIdHtml(),
                 // #1 Update At
                 item.timestamp ? formatDateTime(item.timestamp) : "",
                 // #2 long %
@@ -191,7 +197,7 @@ async function loadData() {
                 indicators: false,
                 handler: false,
             },
-            responsive: false,
+            responsive: true,
             language: {
                 searchBuilder: {
                     title: "Tìm kiếm nâng cao", // hoặc text khác mà V muốn thay đổi
@@ -201,13 +207,30 @@ async function loadData() {
                     colvis: "Hiển/Ẩn thị cột",
                 },
             },
-            fixedHeader: true
+            fixedHeader: true,
         });
+        setShortText();
     } catch (err) {
         console.error("Lỗi khi tải dữ liệu:", err);
         document.getElementById("ratioTable").style.display = "none";
         document.getElementById("noDataMessage").style.display = "block";
     }
+}
+
+function setShortText() {
+    // Tiêu đề ngắn cho từng cột (đúng thứ tự)
+    const shortHeaders = ["Coin", "Update", "L %", "S %", "Funding %", "Vol24h", "Cap", "Vol/Cap", "Vol15m", "Vol1h", "Vol4h", "15m %", "1h %", "4h %", "Rec.", "Trend", "Action"];
+
+    // Chờ DataTable render xong header
+    window.dataTable.on("init", function () {
+        document.querySelectorAll("#ratioTable thead th").forEach((th, i) => {
+            const span = th.querySelector(".dt-column-title");
+            if (span && shortHeaders[i]) {
+                span.classList.add("shortify-header");
+                span.setAttribute("data-short", shortHeaders[i]);
+            }
+        });
+    });
 }
 
 async function showAnalysis(instId) {
@@ -378,3 +401,31 @@ document.getElementById("timeframeSelect").addEventListener("change", () => {
 });
 
 loadData();
+let zoomLevel = 100;
+function changeZoom(zoomValue) {
+    const body = document.body;
+
+    // Check if zoom is supported (not Firefox)
+    if ("zoom" in body.style) {
+        body.style.zoom = zoomValue + "%";
+        body.style.transform = "";
+        body.style.transformOrigin = "";
+    } else {
+        const scale = parseInt(zoomValue) / 100;
+        body.style.transform = `scale(${scale})`;
+        body.style.transformOrigin = "0 0"; // Scale từ góc trên bên trái
+    }
+}
+function adjustZoom(isincrease) {
+    if (isincrease) {
+        zoomLevel += 10;
+    } else {
+        zoomLevel -= 10;
+    }
+    changeZoom(zoomLevel);
+}
+
+function resetZoom() {
+    zoomLevel = 100;
+    changeZoom(zoomLevel);
+}

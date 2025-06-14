@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>OKX Ratio Viewer</title>
+    <title>OKX Signal Center</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
@@ -27,21 +27,45 @@
             /* Chữ đen để dễ đọc */
         }
 
-        /* .table td {
-            vertical-align: middle;
+        /* Gán mặc định zoom là 100% */
+        body {
+            zoom: 100%;
+            transition: zoom 0.3s ease;
         }
 
-        .bg-light {
-            background-color: #f8f9fa !important;
-        }
+        /* -------- MOBILE ONLY -------- */
+        @media (max-width: 768px) {
 
-        .text-success {
-            color: #28a745 !important;
-        }
+            /* TD / body cell */
+            .shortify-cell {
+                font-size: 0;
+                /* giấu text dài */
+                position: relative;
+            }
 
-        .text-danger {
-            color: #dc3545 !important;
-        } */
+            .shortify-cell::after {
+                content: attr(data-short);
+                /* text ngắn */
+                font-size: 14px;
+                display: inline;
+                color: inherit;
+            }
+
+            /* TH / header */
+            .shortify-header .dt-column-title {
+                font-size: 0;
+                /* giấu text dài */
+                position: relative;
+            }
+
+            .shortify-header .dt-column-title::after {
+                content: attr(data-short);
+                /* tiêu đề ngắn */
+                font-size: 14px;
+                display: inline-block;
+                color: inherit;
+            }
+        }
     </style>
 </head>
 
@@ -50,7 +74,7 @@
     <div class="container-fluid py-4">
         <h2 class="mb-4 d-flex align-items-center">
             <span class="me-2">📊</span>
-            <span>OKX tỉ lệ Long/Short</span>
+            <span>OKX Signal Center</span>
             <small class="text-muted ms-2">(Cập nhật mỗi 15 phút)</small>
         </h2>
 
@@ -62,11 +86,21 @@
 
         <!-- Table wrapper with shadow -->
         <div class="">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">OKX Ratio Viewer</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="adjustZoom(true)">➕ Zoom In</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="adjustZoom(false)">➖ Zoom Out</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()">🔄 Reset</button>
+                </div>
+            </div>
             <table id="ratioTable" class="table table-hover cell-border mb-0">
                 <thead>
                     <tr>
-                        <th class="text-nowrap" data-bs-toggle="tooltip" title="Tên cặp giao dịch">Cặp
-                            giao dịch</th>
+                        <th class="text-nowrap v-cell" data-bs-toggle="tooltip" title="Tên cặp giao dịch"
+                            data-long="Cặp giao dịch" data-short="Coin">
+                            Coin
+                        </th>
                         <th class="text-nowrap" data-bs-toggle="tooltip" title="Thời gian cập nhật dữ liệu gần nhất">
                             Update At</th>
                         <th class="text-nowrap" data-bs-toggle="tooltip"
@@ -103,7 +137,7 @@
                         <th class="text-nowrap" data-bs-toggle="tooltip"
                             title="Phân tích xu hướng dựa trên biến động giá trong 4h và dữ liệu khác">Xu Hướng</th>
                         <th class="text-nowrap" data-bs-toggle="tooltip"
-                            title="Liên kết để mở giao dịch trực tiếp trên OKX">Trade</th>
+                            title="Liên kết để mở giao dịch trực tiếp trên OKX">Action</th>
                     </tr>
 
                 </thead>
