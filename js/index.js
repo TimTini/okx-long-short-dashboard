@@ -401,31 +401,3 @@ document.getElementById("timeframeSelect").addEventListener("change", () => {
 });
 
 loadData();
-let zoomLevel = 100;
-function changeZoom(zoomValue) {
-    const body = document.body;
-
-    // Check if zoom is supported (not Firefox)
-    if ("zoom" in body.style) {
-        body.style.zoom = zoomValue + "%";
-        body.style.transform = "";
-        body.style.transformOrigin = "";
-    } else {
-        const scale = parseInt(zoomValue) / 100;
-        body.style.transform = `scale(${scale})`;
-        body.style.transformOrigin = "0 0"; // Scale từ góc trên bên trái
-    }
-}
-function adjustZoom(isincrease) {
-    if (isincrease) {
-        zoomLevel += 10;
-    } else {
-        zoomLevel -= 10;
-    }
-    changeZoom(zoomLevel);
-}
-
-function resetZoom() {
-    zoomLevel = 100;
-    changeZoom(zoomLevel);
-}
